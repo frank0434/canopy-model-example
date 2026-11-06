@@ -27,14 +27,36 @@ grid$beta <- predict(fits$beta, newdata = grid)
 grid$piecewise <- predict(fits$piecewise, newdata = grid)
 write.csv(grid, file.path(output, "predictions.csv"), row.names = FALSE)
 
-png(file.path(output, "canopy_models.png"), width = 900, height = 600)
-plot(data$GDD, data$CC, xlab = "Growing degree days (GDD)",
-     ylab = "Canopy cover (fraction)", pch = 16, col = "grey40",
-     ylim = range(c(0, 1, grid$beta, grid$piecewise)))
-lines(grid$GDD, grid$beta, col = "steelblue", lwd = 2)
-lines(grid$GDD, grid$piecewise, col = "firebrick", lwd = 2)
-legend("topright", c("Observations", "Beta", "Piecewise"),
-       col = c("grey40", "steelblue", "firebrick"), pch = c(16, NA, NA),
-       lty = c(NA, 1, 1), lwd = 2, bty = "n")
-dev.off()
+observations <- data.frame(GDD = data$GDD, CC = data$CC)
+curves <- rbind(
+  data.frame(GDD = grid$GDD, CC = grid$beta, Model = "Beta"),
+  data.frame(GDD = grid$GDD, CC = grid$piecewise, Model = "Piecewise")
+)
+plot <- ggplot2::ggplot() +
+  ggplot2::geom_point(
+    data = observations,
+    ggplot2::aes(x = GDD, y = CC),
+    colour = "grey40"
+  ) +
+  ggplot2::geom_line(
+    data = curves,
+    ggplot2::aes(x = GDD, y = CC, colour = Model),
+    linewidth = 1
+  ) +
+  ggplot2::scale_colour_manual(
+    values = c(Beta = "steelblue", Piecewise = "firebrick")
+  ) +
+  ggplot2::labs(
+    x = "Growing degree days (GDD)",
+    y = "Canopy cover (fraction)",
+    colour = "Model"
+  ) +
+  ggplot2::theme_minimal()
+ggplot2::ggsave(
+  file.path(output, "canopy_models.png"),
+  plot = plot,
+  width = 9,
+  height = 6,
+  dpi = 100
+)
 cat("\nWrote predictions.csv and canopy_models.png to", output, "\n")

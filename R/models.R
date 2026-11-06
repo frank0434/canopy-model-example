@@ -1,3 +1,5 @@
+# Beta canopy-cover curve (Yin form): GDD is cumulative thermal time since
+# emergence; mu is the log scale, alpha/beta shape the curve, and t1/te bound it.
 beta_model <- function(GDD, mu, alpha, beta, t1, te) {
   result <- rep(0, length(GDD))
   inside <- GDD > t1 & GDD < te
@@ -6,6 +8,8 @@ beta_model <- function(GDD, mu, alpha, beta, t1, te) {
   result
 }
 
+# Piecewise canopy-cover curve: tm1 shapes build-up, t1/t2 mark the plateau
+# boundaries, te marks the end of senescence, and vmax is peak cover.
 piecewise_model <- function(GDD, tm1, t1, t2, te, vmax) {
   result <- rep(0, length(GDD))
   growth <- GDD >= 0 & GDD < t1

@@ -7,10 +7,10 @@ paper's results or its full preprocessing and bootstrap pipeline.
 
 ## Run
 
-Install R and the one required package once:
+Install R and the required packages once:
 
 ```r
-install.packages("minpack.lm")
+install.packages(c("minpack.lm", "ggplot2"))
 ```
 
 From the repository root, run:
@@ -58,12 +58,20 @@ curve is biologically correct.
 
 ## Equations and provenance
 
-The beta curve is `exp(mu) * (GDD - t1)^alpha * (te - GDD)^beta` between
-`t1` and `te`, and zero outside that interval. Its peak is at
-`t1 + alpha / (alpha + beta) * (te - t1)`. The piecewise curve has a
-build-up phase up to `t1`, a plateau at `vmax` until `t2`, and senescence
-until `te`; `tm1` controls the build-up shape. See `R/models.R` for the
-equations.
+Here, `GDD` is cumulative growing degree-days from emergence and `CC` is
+fractional canopy cover. In the beta equation,
+`CC = exp(mu) * (GDD - t1)^alpha * (te - GDD)^beta` for `t1 < GDD < te`
+(zero otherwise): `mu` is the log scale, `alpha` and `beta` shape the rise
+and decline, and `t1`/`te` are the thermal-time limits. Its peak is at
+`t1 + alpha / (alpha + beta) * (te - t1)`.
+
+The piecewise equation describes canopy build-up to `t1`, a plateau at `vmax`
+from `t1` to `t2`, and senescence to `te`. `tm1` controls the build-up shape;
+`t1`, `t2`, and `te` are thermal-time phase boundaries, and `vmax` is maximum
+canopy cover. These meanings follow the source equations and their use in the
+referenced canopy analysis; `R/models.R` implements the equations and phase
+limits. The plot is built with ggplot2 from observation and prediction data
+frames, while the CSV retains one prediction column per model.
 
 The equations and fitting approach were extracted and adapted from
 [`scripts/equations.r`](https://github.com/frank0434/ch2_IND/blob/9e3a3b3d768f41cb8b3d97a709848a0999bd1ea2/scripts/equations.r)
