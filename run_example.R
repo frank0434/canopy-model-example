@@ -1,7 +1,5 @@
-args <- commandArgs(trailingOnly = TRUE)
-if (length(args) > 2) stop("Usage: Rscript run_example.R [data.csv] [output-directory]")
-input <- if (length(args) >= 1) args[1] else "data/example_canopy.csv"
-output <- if (length(args) >= 2) args[2] else "output"
+input <- "data/example_canopy.csv"
+output <-  "output"
 source("R/models.R")
 
 data <- read.csv(input)
@@ -32,31 +30,20 @@ curves <- rbind(
   data.frame(GDD = grid$GDD, CC = grid$beta, Model = "Beta"),
   data.frame(GDD = grid$GDD, CC = grid$piecewise, Model = "Piecewise")
 )
-plot <- ggplot2::ggplot() +
-  ggplot2::geom_point(
-    data = observations,
-    ggplot2::aes(x = GDD, y = CC),
-    colour = "grey40"
-  ) +
-  ggplot2::geom_line(
-    data = curves,
-    ggplot2::aes(x = GDD, y = CC, colour = Model),
-    linewidth = 1
-  ) +
-  ggplot2::scale_colour_manual(
-    values = c(Beta = "steelblue", Piecewise = "firebrick")
-  ) +
-  ggplot2::labs(
+library(ggplot2)
+plot <- ggplot() + 
+  geom_point(data = observations, 
+  aes(x = GDD, y = CC), colour = "grey40"  ) +
+  geom_line(data = curves,
+    aes(x = GDD, y = CC, colour = Model),
+    linewidth = 1 ) +
+  scale_colour_manual(values = c(Beta = "steelblue", Piecewise = "firebrick")) +
+  labs(
     x = "Growing degree days (GDD)",
     y = "Canopy cover (fraction)",
-    colour = "Model"
-  ) +
-  ggplot2::theme_minimal()
-ggplot2::ggsave(
-  file.path(output, "canopy_models.png"),
-  plot = plot,
-  width = 9,
-  height = 6,
-  dpi = 100
-)
-cat("\nWrote predictions.csv and canopy_models.png to", output, "\n")
+    colour = "Model") +
+  theme_minimal()
+ggsave(
+  file.path(output, "canopy_models.png"),  plot = plot,
+  width = 9,   height = 6,   dpi = 100 )
+
